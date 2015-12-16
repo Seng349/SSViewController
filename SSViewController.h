@@ -1,5 +1,5 @@
 //
-//  KETAlertViewController.h
+//  SSViewController.h
 //  TestWindow
 //
 //  Created by Seng349 on 15/12/13.
@@ -31,6 +31,12 @@
 @property (copy) CAAnimation* hideAnimation;
 
 @property(nonatomic) UIWindowLevel windowLevel;                   // default = 0.0
+
+/**
+ *  It can get now keyboard position.
+ *  But it does not distinguish between the animation start or end position changes
+ */
+@property(nonatomic) CGRect keyBoardFrame;
 
 /**
  * This method will add self.view to a new UIWindow */

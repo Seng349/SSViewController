@@ -89,6 +89,10 @@
             [mWindow.layer removeAllAnimations];
             [mWindow.layer addAnimation:self.showAnimation forKey:@"Animation"];
         }
+        else
+        {
+            [mWindow.layer removeAllAnimations];
+        }
         
         if (mWindow.rootViewController)
         {
@@ -116,13 +120,20 @@
             [mWindow.layer removeAllAnimations];
             [mWindow.layer addAnimation:self.hideAnimation forKey:@"Animation"];
         }
+        else
+        {
+            [mWindow.layer removeAllAnimations];
+        }
         
         [self.view removeFromSuperview];
         
+        __block UIWindow *weakWindow = mWindow;
         self.hideCompletion = ^(BOOL finished) {
             completion(finished);
-            mWindow.rootViewController = nil;
-            [mWindow setHidden:YES];
+            weakWindow.rootViewController = nil;
+            [weakWindow setHidden:YES];
+            self.showAnimation            = nil;
+            self.hideAnimation            = nil;
         };
         
         if (!animted && self.hideCompletion)
@@ -161,6 +172,51 @@
         self.hideCompletion(flag);
         self.hideCompletion = nil;
     }
+}
+
+- (CGRect)keyBoardFrame
+{
+    // 使用宏定义，当前代码段在作为插件使用时无效
+    
+    #if !defined(SV_APP_EXTENSIONS)
+    
+    UIWindow *keyboardWindow = nil;
+    
+    for (UIWindow *testWindow in [[UIApplication sharedApplication] windows])
+    {
+        if ([testWindow isKindOfClass: NSClassFromString(@"UITextEffectsWindow")])
+        {
+            keyboardWindow = testWindow;
+            
+            break;
+        }
+    }
+    
+    if (keyboardWindow)
+    {
+        for (UIView *possibleKeyboard in [keyboardWindow subviews])
+        {
+            if ([possibleKeyboard isKindOfClass: NSClassFromString(@"UIPeripheralHostView")] ||
+                [possibleKeyboard isKindOfClass: NSClassFromString(@"UIKeyboard")])
+            {
+                return possibleKeyboard.frame;
+            }
+            else if ([possibleKeyboard isKindOfClass: NSClassFromString(@"UIInputSetContainerView")])
+            {
+                for (UIView *possibleKeyboardSubview in [possibleKeyboard subviews])
+                {
+                    if ([possibleKeyboardSubview isKindOfClass: NSClassFromString(@"UIInputSetHostView")])
+                    {
+                        return possibleKeyboardSubview.frame;;
+                    }
+                }
+            }
+        }
+    }
+    
+    #endif
+    
+    return CGRectZero;
 }
 
 @end
